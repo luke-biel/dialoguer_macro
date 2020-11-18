@@ -1,0 +1,25 @@
+[package]
+name = "yaga"
+version = "0.1.0"
+authors = ["Łukasz Biel <lukasz.p.biel@gmail.com>"]
+description = "Trait helper (and derive macro) for constructing interactive message prompts using `dialoguer`"
+edition = "2018"
+license-file = "LICENSE"
+readme = "README.md"
+repository = "https://github.com/luke-biel/yaga"
+categories = ["command-line-interface", "config"]
+
+[workspace]
+members = ["yaga-derive"]
+
+[lib]
+name = "yaga"
+
+[dependencies]
+dialoguer = "0.7"
+yaga-derive = { path = "yaga-derive", version = "0.1.0" }
+
+[dev-dependencies]
+rand = "0.7"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"

@@ -1,0 +1,21 @@
+[package]
+name = "yaga-derive"
+version = "0.1.0"
+authors = ["Łukasz Biel <lukasz.p.biel@gmail.com>"]
+edition = "2018"
+license-file = "../LICENSE"
+readme = "../README.md"
+description = "Derive macro based on Dialoguer crate. To use only with 'yaga'"
+repository = "https://github.com/luke-biel/yaga"
+categories = ["command-line-interface", "config"]
+keywords = ["procmacro", "proc_macro", "derive"]
+
+[lib]
+name = "yaga_derive"
+proc-macro = true
+
+[dependencies]
+quote = "1.0"
+proc-macro2 = "1.0"
+proc-macro-error = "1.0"
+syn = { version = "1.0", features = ["full", "derive", "extra-traits"] }

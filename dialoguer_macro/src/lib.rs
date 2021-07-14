@@ -87,7 +87,7 @@ fn derive_on_enum<'a>(variants: impl Iterator<Item = &'a Variant>, ident: Ident)
 
     for (i, (field, typ, prompt)) in variants.enumerate() {
         opts.push(quote! {
-            #i => #ident::#field(<#typ as yaga::Dialogue>::compose(#prompt)?),
+            #i => #ident::#field(<#typ as dialoguer_trait::Dialogue>::compose(#prompt)?),
         });
 
         names.push(field);
@@ -96,7 +96,7 @@ fn derive_on_enum<'a>(variants: impl Iterator<Item = &'a Variant>, ident: Ident)
     let opts: TokenStream2 = opts.into_iter().collect();
 
     quote! {
-        impl yaga::Dialogue for #ident {
+        impl dialoguer_trait::Dialogue for #ident {
             fn compose(prompt: &str) -> std::io::Result<Self> {
                 use dialoguer::Select;
                 use dialoguer::theme::ColorfulTheme;
@@ -153,14 +153,14 @@ fn derive_on_struct(fields: &FieldsNamed, ident: Ident) -> TokenStream2 {
         let typ = &field.ty;
 
         acc.push(quote! {
-            #ident: <#typ as yaga::Dialogue>::compose(#prompt)?,
+            #ident: <#typ as dialoguer_trait::Dialogue>::compose(#prompt)?,
         })
     }
 
     let fields: TokenStream2 = acc.into_iter().collect();
 
     quote! {
-        impl yaga::Dialogue for #ident {
+        impl dialoguer_trait::Dialogue for #ident {
             fn compose(prompt: &str) -> std::io::Result<Self> {
                 println!("{}", prompt);
 

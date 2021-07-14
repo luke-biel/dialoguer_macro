@@ -1,6 +1,6 @@
 #![allow(dead_code)]
 
-use yaga::Dialogue;
+use dialoguer_trait::Dialogue;
 
 #[derive(Dialogue)]
 struct Types {

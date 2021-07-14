@@ -1,5 +1,5 @@
 use rand::Rng;
-use yaga::Dialogue;
+use dialoguer_trait::Dialogue;
 
 #[derive(Dialogue)]
 struct Guess {
@@ -8,7 +8,7 @@ struct Guess {
 }
 
 fn main() {
-    let number = rand::thread_rng().gen_range(0, 100);
+    let number = rand::thread_rng().gen_range(0..100);
 
     loop {
         let Guess { answer } = Guess::compose("Guess a number!").unwrap();

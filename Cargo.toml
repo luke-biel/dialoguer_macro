@@ -6,7 +6,7 @@ description = "Trait helper (and derive macro) for constructing interactive mess
 edition = "2018"
 license-file = "LICENSE"
 readme = "README.md"
-repository = "https://github.com/luke-biel/yaga"
+repository = "https://github.com/luke-biel/dialoguer_macro"
 categories = ["command-line-interface", "config"]
 
 [workspace]

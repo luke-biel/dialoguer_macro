@@ -1,4 +1,4 @@
-# Yaga
+# Dialoguer trait
 
 It's simple wrapper trait over [dialoguer][dialoguer] crate.
 It's target is to remove necessity of providing explicit code when building interactive CLI apps.
@@ -6,17 +6,17 @@ It comes with nifty derive macro, that turns (almost) any struct into command pr
 
 ## Usage
 
-Add yaga to your Cargo.toml:
+Add dialoguer_macro to your Cargo.toml:
 
 ```toml
 [dependencies]
-yaga = "0.1.0" 
+dialoguer_macro = "0.1.0" 
 ```
 
 import trait to your namespace and derive it onto some struct:
 
 ```rust
-use yaga::Dialogue;
+use dialoguer_macro::Dialogue;
 
 #[derive(Dialogue)]
 struct Config {

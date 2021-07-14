@@ -6,17 +6,17 @@ It comes with nifty derive macro, that turns (almost) any struct into command pr
 
 ## Usage
 
-Add dialoguer_macro to your Cargo.toml:
+Add dialoguer_trait to your Cargo.toml:
 
 ```toml
 [dependencies]
-dialoguer_macro = "0.1.0" 
+dialoguer_trait = "0.1.2" 
 ```
 
 import trait to your namespace and derive it onto some struct:
 
 ```rust
-use dialoguer_macro::Dialogue;
+use dialoguer_trait::Dialogue;
 
 #[derive(Dialogue)]
 struct Config {

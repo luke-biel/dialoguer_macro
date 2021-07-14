@@ -80,14 +80,12 @@ pub fn derive_dialogue(input: TokenStream) -> TokenStream {
 }
 
 fn derive_on_enum<'a>(variants: impl Iterator<Item = &'a Variant>, ident: Ident) -> TokenStream2 {
-    let variants: Vec<_> = variants
-        .map(|v| (&v.ident, extract_type(&v.fields), extract_prompt(&v.attrs)))
-        .collect();
+    let variants = variants.map(|v| (&v.ident, extract_type(&v.fields), extract_prompt(&v.attrs)));
 
     let mut opts = Vec::new();
     let mut names = Vec::new();
 
-    for (i, (field, typ, prompt)) in variants.into_iter().enumerate() {
+    for (i, (field, typ, prompt)) in variants.enumerate() {
         opts.push(quote! {
             #i => #ident::#field(<#typ as yaga::Dialogue>::compose(#prompt)?),
         });
@@ -120,7 +118,7 @@ fn derive_on_enum<'a>(variants: impl Iterator<Item = &'a Variant>, ident: Ident)
     }
 }
 
-fn extract_prompt(attributes: &Vec<Attribute>) -> Expr {
+fn extract_prompt(attributes: &[Attribute]) -> Expr {
     let defs: DialogueDefsParenthesized = match attributes
         .iter()
         .find(|attr| attr.path == parse_quote!(dialogue))

@@ -1,7 +1,7 @@
-use yaga::Dialogue;
 use serde::Serialize;
 use std::fs::File;
 use std::io::Write;
+use yaga::Dialogue;
 
 #[derive(Dialogue, Serialize)]
 struct Wrapper {

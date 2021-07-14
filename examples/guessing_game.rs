@@ -1,5 +1,5 @@
-use yaga::Dialogue;
 use rand::Rng;
+use yaga::Dialogue;
 
 #[derive(Dialogue)]
 struct Guess {

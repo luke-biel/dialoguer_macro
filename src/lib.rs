@@ -1,6 +1,6 @@
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::{Confirm, Input};
-pub use yaga_derive::Dialogue;
+pub use dialoguer_macro::Dialogue;
 use std::io;
 
 pub trait Dialogue {
@@ -40,8 +40,8 @@ impl Dialogue for bool {
     where
         Self: Sized,
     {
-        Ok(Confirm::with_theme(&ColorfulTheme::default())
+        Confirm::with_theme(&ColorfulTheme::default())
             .with_prompt(prompt)
-            .interact()?)
+            .interact()
     }
 }

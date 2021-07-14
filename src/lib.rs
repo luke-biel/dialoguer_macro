@@ -1,3 +1,4 @@
+pub use dialoguer;
 use dialoguer::theme::ColorfulTheme;
 use dialoguer::{Confirm, Input};
 pub use dialoguer_macro::Dialogue;

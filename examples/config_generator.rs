@@ -1,7 +1,7 @@
+use dialoguer_trait::Dialogue;
 use serde::Serialize;
 use std::fs::File;
 use std::io::Write;
-use dialoguer_trait::Dialogue;
 
 #[derive(Dialogue, Serialize)]
 struct Wrapper {

@@ -1,5 +1,5 @@
-use rand::Rng;
 use dialoguer_trait::Dialogue;
+use rand::Rng;
 
 #[derive(Dialogue)]
 struct Guess {

@@ -4,6 +4,7 @@ use proc_macro::TokenStream;
 use proc_macro2::Ident;
 use proc_macro2::{Group, TokenStream as TokenStream2};
 use proc_macro_error::abort_call_site;
+use proc_macro_error::proc_macro_error;
 use quote::quote;
 use std::collections::HashMap;
 use syn::parse::{Parse, ParseStream};
@@ -27,6 +28,11 @@ struct DialogueDef {
 #[derive(Default)]
 struct DialogueDefsParenthesized {
     inner: DialogueDefs,
+}
+
+struct ExtraConfig {
+    prompt: Option<Expr>,
+    name: Option<Expr>,
 }
 
 impl Parse for DialogueDef {
@@ -63,6 +69,7 @@ impl Parse for DialogueDefsParenthesized {
 }
 
 #[proc_macro_derive(Dialogue, attributes(dialogue))]
+#[proc_macro_error]
 pub fn derive_dialogue(input: TokenStream) -> TokenStream {
     let DeriveInput { ident, data, .. } = parse_macro_input!(input as DeriveInput);
 
@@ -80,17 +87,38 @@ pub fn derive_dialogue(input: TokenStream) -> TokenStream {
 }
 
 fn derive_on_enum<'a>(variants: impl Iterator<Item = &'a Variant>, ident: Ident) -> TokenStream2 {
-    let variants = variants.map(|v| (&v.ident, extract_type(&v.fields), extract_prompt(&v.attrs)));
+    let variants = variants.map(|v| {
+        (
+            &v.ident,
+            extract_type(&v.fields),
+            extract_extra_config(&v.attrs),
+        )
+    });
 
     let mut opts = Vec::new();
     let mut names = Vec::new();
 
-    for (i, (field, typ, prompt)) in variants.enumerate() {
-        opts.push(quote! {
-            #i => #ident::#field(<#typ as dialoguer_trait::Dialogue>::compose(#prompt)?),
-        });
+    for (i, (field, typ, extra_config)) in variants.enumerate() {
+        let ExtraConfig { prompt, name } = extra_config;
 
-        names.push(field);
+        if let Some(typ) = typ {
+            if prompt.is_none() {
+                abort_call_site!("Missing promp attribute on an enum variant");
+            }
+            opts.push(quote! {
+                #i => #ident::#field(<#typ as dialoguer_trait::Dialogue>::compose(#prompt)?),
+            });
+        } else {
+            opts.push(quote! {
+                #i => #ident::#field,
+            })
+        }
+
+        if let Some(name) = name {
+            names.push(quote! { #name });
+        } else {
+            names.push(quote! { stringify!(#field) });
+        }
     }
 
     let opts: TokenStream2 = opts.into_iter().collect();
@@ -98,10 +126,10 @@ fn derive_on_enum<'a>(variants: impl Iterator<Item = &'a Variant>, ident: Ident)
     quote! {
         impl dialoguer_trait::Dialogue for #ident {
             fn compose(prompt: &str) -> std::io::Result<Self> {
-                use dialoguer::Select;
-                use dialoguer::theme::ColorfulTheme;
+                use dialoguer_trait::dialoguer::Select;
+                use dialoguer_trait::dialoguer::theme::ColorfulTheme;
 
-                let selections = [#(stringify!(#names)),*];
+                let selections = [#(#names),*];
 
                 let idx = Select::with_theme(&ColorfulTheme::default())
                     .with_prompt(prompt)
@@ -118,7 +146,7 @@ fn derive_on_enum<'a>(variants: impl Iterator<Item = &'a Variant>, ident: Ident)
     }
 }
 
-fn extract_prompt(attributes: &[Attribute]) -> Expr {
+fn extract_extra_config(attributes: &[Attribute]) -> ExtraConfig {
     let defs: DialogueDefsParenthesized = match attributes
         .iter()
         .find(|attr| attr.path == parse_quote!(dialogue))
@@ -127,19 +155,22 @@ fn extract_prompt(attributes: &[Attribute]) -> Expr {
         None => DialogueDefsParenthesized::default(),
     };
 
-    defs.inner.map.get("prompt").unwrap().clone()
+    ExtraConfig {
+        prompt: defs.inner.map.get("prompt").cloned(),
+        name: defs.inner.map.get("name").cloned(),
+    }
 }
 
-fn extract_type(fields: &Fields) -> &Type {
+fn extract_type(fields: &Fields) -> Option<&Type> {
     match fields {
-        Fields::Unnamed(FieldsUnnamed { ref unnamed, .. }) => {
-            if unnamed.len() != 1 {
-                abort_call_site!("Only enum variants with single field are supported at a time")
-            } else {
+        Fields::Unnamed(FieldsUnnamed { ref unnamed, .. }) => match unnamed.len() {
+            1 => {
                 let field = unnamed.first().unwrap();
-                &field.ty
+                Some(&field.ty)
             }
-        }
+            _ => abort_call_site!("Only enum variants with single field are supported at a time"),
+        },
+        Fields::Unit => None,
         _ => abort_call_site!("Only unnamed fields are supported for enums at the time"),
     }
 }
@@ -148,8 +179,12 @@ fn derive_on_struct(fields: &FieldsNamed, ident: Ident) -> TokenStream2 {
     let mut acc = Vec::new();
 
     for field in &fields.named {
-        let prompt = extract_prompt(&field.attrs);
-        let ident = field.ident.as_ref().unwrap();
+        let ExtraConfig { prompt, .. } = extract_extra_config(&field.attrs);
+        let ident = if let Some(ident) = field.ident.as_ref() {
+            ident
+        } else {
+            abort_call_site!("Missing ident of struct field")
+        };
         let typ = &field.ty;
 
         acc.push(quote! {

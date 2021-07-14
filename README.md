@@ -10,7 +10,7 @@ Add dialoguer_trait to your Cargo.toml:
 
 ```toml
 [dependencies]
-dialoguer_trait = "0.1.2" 
+dialoguer_trait = "0.2.0" 
 ```
 
 import trait to your namespace and derive it onto some struct:

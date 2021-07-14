@@ -1,6 +1,6 @@
 [package]
 name = "dialoguer_trait"
-version = "0.1.2"
+version = "0.2.0"
 authors = ["Łukasz Biel <lukasz.p.biel@gmail.com>"]
 description = "Trait helper (and derive macro) for constructing interactive message prompts using `dialoguer`"
 edition = "2018"
@@ -17,7 +17,7 @@ name = "dialoguer_trait"
 
 [dependencies]
 dialoguer = "0.8.0"
-dialoguer_macro = { path = "dialoguer_macro", version = "0.1.2" }
+dialoguer_macro = { path = "dialoguer_macro", version = "0.2.0" }
 
 [dev-dependencies]
 rand = "0.8.4"
